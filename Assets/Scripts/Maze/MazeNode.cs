@@ -5,7 +5,7 @@ using UnityEngine;
 
 public enum NodeState
 {
-    Available,
+    Start,
     Current,
     Completed
 }
@@ -24,11 +24,11 @@ public class MazeNode : MonoBehaviour
     {
         switch (state)
         {
-            case NodeState.Available:
-                floor.material.color = Color.white;
+            case NodeState.Start:
+                floor.material.color = Color.yellow;
                 break;
             case NodeState.Current:
-                floor.material.color = Color.yellow;
+                floor.material.color = Color.blue;
                 break;
             case NodeState.Completed:
                 floor.material.color = Color.green;
