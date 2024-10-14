@@ -1,3 +1,4 @@
+using System;
 using SingletonPattern;
 using UnityEngine;
 
@@ -39,6 +40,15 @@ namespace CommandPattern
             }
 
             maze.ColorNode();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Key") && GameManager.Instance.runGame)
+            {
+                other.gameObject.SetActive(false);
+                GameManager.Instance.hasKey = true;
+            }
         }
     }
 }

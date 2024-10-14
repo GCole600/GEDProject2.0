@@ -1,9 +1,7 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 using ObserverPattern;
-using Unity.VisualScripting;
 
 namespace CommandPattern
 {

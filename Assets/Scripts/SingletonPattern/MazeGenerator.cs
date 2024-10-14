@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Maze;
 using UnityEngine;
@@ -16,6 +17,27 @@ namespace SingletonPattern
         private List<MazeNode> _nodes = new List<MazeNode>();
         private List<MazeNode> _currentPath = new List<MazeNode>();
         private List<MazeNode> _completedNodes = new List<MazeNode>();
+
+        private bool _generationDone;
+
+        private void Start()
+        {
+            character.GetComponent<Renderer>().enabled = false;
+            key.GetComponent<Renderer>().enabled = false;
+        }
+
+        private void Update()
+        {
+            if (_generationDone)
+            {
+                // Check if player has reached end
+                if (Math.Abs(character.transform.position.x - _completedNodes[^1].transform.position.x) < 0.2f 
+                    && Math.Abs(character.transform.position.z - _completedNodes[^1].transform.position.z) < 0.2f)
+                {
+                    GameManager.Instance.EndGame();
+                }
+            }
+        }
 
         public void GenerateMaze()
         {
@@ -126,10 +148,15 @@ namespace SingletonPattern
             // Set character & key position
             character.transform.position = _completedNodes[0].transform.position;
             key.transform.position = _completedNodes[Random.Range(1, _completedNodes.Count - 2)].transform.position;
+            character.GetComponent<Renderer>().enabled = true;
+            key.GetComponent<Renderer>().enabled = true;
+            key.SetActive(true);
             
             // Color starting and end nodes
             _completedNodes[0].SetState(NodeState.Start);
             _completedNodes[^1].SetState(NodeState.End);
+
+            _generationDone = true;
         }
 
         public void ColorNode()
@@ -137,10 +164,27 @@ namespace SingletonPattern
             // Check if player position matches node position
             for (int i = 0; i < _completedNodes.Count; i++)
             {
-                if (character.transform.position == _completedNodes[i].transform.position)
+                if (Math.Abs(character.transform.position.x - _completedNodes[i].transform.position.x) < 0.2f 
+                    && Math.Abs(character.transform.position.z - _completedNodes[i].transform.position.z) < 0.2f)
                 {
                     _completedNodes[i].SetState(NodeState.Current);
                 }
+            }
+        }
+        
+        public void ReloadVars()
+        {
+            _generationDone = false;
+            character.GetComponent<Renderer>().enabled = false;
+            key.GetComponent<Renderer>().enabled = false;
+
+            _nodes.Clear();
+            _currentPath.Clear();
+            _completedNodes.Clear();
+            
+            foreach (Transform child in this.transform)
+            {
+                Destroy(child.gameObject);
             }
         }
     }
