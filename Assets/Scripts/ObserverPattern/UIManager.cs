@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using CommandPattern;
+using SingletonPattern;
 using TMPro;
 using UnityEngine;
 
