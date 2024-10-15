@@ -1,4 +1,5 @@
 using System;
+using FactoryPattern;
 using SingletonPattern;
 using UnityEngine;
 
@@ -38,7 +39,8 @@ namespace CommandPattern
                         transform.Translate(Vector3.right * _distance);
                     break;
             }
-
+            
+            AudioManager.Instance.PlaySfx("MoveSound");
             maze.ColorNode();
         }
 
@@ -47,6 +49,7 @@ namespace CommandPattern
             if (other.CompareTag("Key") && GameManager.Instance.runGame)
             {
                 other.gameObject.SetActive(false);
+                AudioManager.Instance.PlaySfx("PickUpKey");
                 GameManager.Instance.hasKey = true;
             }
         }

@@ -12,11 +12,13 @@ namespace SingletonPattern
         [SerializeField] private TMP_Text timerText;
         private float _time;
         public bool runGame;
-        
-        [Header("Gameplay")]
+
+        [Header("Gameplay")] 
+        [SerializeField] private GameObject infoScreen;
         [SerializeField] private TMP_Text playText;
         [SerializeField] private TMP_Text sizeNotSelectedText;
         private bool _isSizeSelected;
+        private Camera _camera;
         
         [Header("End Game")]
         [SerializeField] private GameObject gameplayUI;
@@ -26,11 +28,18 @@ namespace SingletonPattern
 
         private void Start()
         {
+            _camera = Camera.main;
             AudioManager.Instance.PlayMusic("BackgroundMusic");
         }
 
         private void Update()
         {
+            if (Input.anyKeyDown)
+            {
+                infoScreen.SetActive(false);
+                gameplayUI.gameObject.SetActive(true);
+            }
+            
             if (runGame)
             {
                 _time += Time.deltaTime;
@@ -62,10 +71,20 @@ namespace SingletonPattern
 
         public void SetMazeSize(int size)
         {
+            if (_isSizeSelected) return;
+            
             MazeGenerator.Instance.mazeSize = new Vector2Int(size, size);
             playText.text = "Play: " + size + "x" + size;
             _isSizeSelected = true;
             sizeNotSelectedText.gameObject.SetActive(false);
+
+            _camera.orthographicSize = size switch
+            {
+                10 => 6,
+                15 => 8.5f,
+                20 => 11,
+                _ => _camera.orthographicSize
+            };
         }
 
         public void EndGame()
@@ -74,6 +93,8 @@ namespace SingletonPattern
             {
                 // Pause timer
                 runGame = false;
+                
+                AudioManager.Instance.PlaySfx("Win");
                 
                 float minutes = Mathf.FloorToInt(_time / 60);
                 float seconds = Mathf.FloorToInt(_time % 60);
