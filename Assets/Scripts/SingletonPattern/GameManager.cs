@@ -1,3 +1,5 @@
+using System;
+using FactoryPattern;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -21,6 +23,11 @@ namespace SingletonPattern
         [SerializeField] private GameObject winScreen;
         [SerializeField] private TMP_Text timeText;
         public bool hasKey;
+
+        private void Start()
+        {
+            AudioManager.Instance.PlayMusic("BackgroundMusic");
+        }
 
         private void Update()
         {
