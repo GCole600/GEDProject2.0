@@ -8,7 +8,7 @@ namespace ObserverPattern
 {
     public class UIManager : Observer
     {
-        [SerializeField] private TMP_Text listText;
+        [SerializeField] public TMP_Text listText;
 
         public override void Notify(Subject subject)
         {

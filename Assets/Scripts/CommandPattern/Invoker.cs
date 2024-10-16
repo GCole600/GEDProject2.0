@@ -45,6 +45,7 @@ namespace CommandPattern
             }
 
             _plannedCommands.Clear();
+            NotifyObservers();
         }
 
         public List<Command> GetPlannedCommands()

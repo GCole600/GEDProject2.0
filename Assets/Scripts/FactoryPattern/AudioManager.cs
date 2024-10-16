@@ -1,13 +1,14 @@
 using System;
 using SingletonPattern;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FactoryPattern
 {
     public class AudioManager : Singleton<AudioManager>
     {
         public AudioSource musicSource;
-        public AudioSource SFXSource;
+        public AudioSource sfxSource;
         public AudioDatabase audioDatabase;
 
         private AudioFactory _audioFactory;
@@ -21,7 +22,7 @@ namespace FactoryPattern
         {
             IAudio audioInterface = _audioFactory.CreateAudio("SFX", clipName);
 
-            audioInterface?.Play(SFXSource);
+            audioInterface?.Play(sfxSource);
         }
         
         public void PlayMusic(string clipName)

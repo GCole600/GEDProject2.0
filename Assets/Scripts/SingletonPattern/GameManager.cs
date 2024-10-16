@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
+using CommandPattern;
 using FactoryPattern;
+using ObserverPattern;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -29,6 +32,12 @@ namespace SingletonPattern
         private void Start()
         {
             _camera = Camera.main;
+            StartCoroutine(LoadMusic());
+        }
+
+        private IEnumerator LoadMusic()
+        {
+            yield return new WaitForEndOfFrame();
             AudioManager.Instance.PlayMusic("BackgroundMusic");
         }
 
@@ -53,7 +62,7 @@ namespace SingletonPattern
             float minutes = Mathf.FloorToInt(_time / 60);
             float seconds = Mathf.FloorToInt(_time % 60);
 
-            timerText.text = "Time:" + $"{minutes:00}:{seconds:00}";
+            timerText.text = "Time: " + $"{minutes:00}:{seconds:00}";
         }
         
         public void PlayGame()
@@ -71,7 +80,7 @@ namespace SingletonPattern
 
         public void SetMazeSize(int size)
         {
-            if (_isSizeSelected) return;
+            if (runGame) return;
             
             MazeGenerator.Instance.mazeSize = new Vector2Int(size, size);
             playText.text = "Play: " + size + "x" + size;
