@@ -4,4 +4,6 @@
 
 [UML Diagram drawio](https://github.com/user-attachments/assets/ef75578f-eef6-4c45-bd15-65875f0d5731)
 
+[Project Progresion](https://github.com/user-attachments/assets/215fa23f-3161-4e80-b4ea-d2ebc9b7cd59)
+
 https://youtu.be/PwgyymDSv1E
