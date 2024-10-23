@@ -1,11 +1,7 @@
-using System;
 using System.Collections;
-using CommandPattern;
 using FactoryPattern;
-using ObserverPattern;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace SingletonPattern
 {
@@ -98,7 +94,7 @@ namespace SingletonPattern
 
         public void EndGame()
         {
-            if (hasKey)
+            if (hasKey && runGame)
             {
                 // Pause timer
                 runGame = false;
