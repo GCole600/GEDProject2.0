@@ -1,4 +1,5 @@
 using System.Collections;
+using DLL_Plugin;
 using FactoryPattern;
 using ObjectPool;
 using TMPro;
@@ -31,13 +32,16 @@ namespace SingletonPattern
         private void Start()
         {
             _camera = Camera.main;
-            StartCoroutine(LoadMusic());
+            StartCoroutine(LateLoad());
         }
 
-        private IEnumerator LoadMusic()
+        private IEnumerator LateLoad()
         {
             yield return new WaitForEndOfFrame();
             AudioManager.Instance.PlayMusic("BackgroundMusic");
+            
+            // Load the CSV file
+            CSVLoader.Instance.LoadCSV(Application.streamingAssetsPath + "/Maze Data - Sheet1.csv");
         }
 
         private void Update()
@@ -77,16 +81,19 @@ namespace SingletonPattern
             }
         }
 
-        public void SetMazeSize(int size)
+        public void SetMazeSize(int row)
         {
-            if (runGame) return;
+            if (runGame) return; // Can't change size if playing game
+
+            // Get maze size from CSV file
+            var mazeSize = CSVLoader.Instance.GetValueAt(row, "Maze Size");
+            MazeGenerator.Instance.mazeSize = new Vector2Int(mazeSize, mazeSize);
+            playText.text = "Play: " + mazeSize + "x" + mazeSize;
             
-            MazeGenerator.Instance.mazeSize = new Vector2Int(size, size);
-            playText.text = "Play: " + size + "x" + size;
             _isSizeSelected = true;
             sizeNotSelectedText.gameObject.SetActive(false);
 
-            _camera.orthographicSize = size switch
+            _camera.orthographicSize = mazeSize switch
             {
                 10 => 6,
                 15 => 8.5f,
@@ -94,21 +101,9 @@ namespace SingletonPattern
                 _ => _camera.orthographicSize
             };
 
-            switch (size)
-            {
-                case 10:
-                    TrapSpawner.Instance.maxPoolSize = 5;
-                    TrapSpawner.Instance.stackDefaultCapacity = 5;
-                    break;
-                case 15:
-                    TrapSpawner.Instance.maxPoolSize = 10;
-                    TrapSpawner.Instance.stackDefaultCapacity = 10;
-                    break;
-                case 20:
-                    TrapSpawner.Instance.maxPoolSize = 15;
-                    TrapSpawner.Instance.stackDefaultCapacity = 15;
-                    break;
-            }
+            var trapCount = CSVLoader.Instance.GetValueAt(row, "Trap Count");
+            TrapSpawner.Instance.maxPoolSize = trapCount;
+            TrapSpawner.Instance.stackDefaultCapacity = trapCount;
         }
 
         public void EndGame()
