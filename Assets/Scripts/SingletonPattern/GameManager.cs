@@ -1,5 +1,6 @@
 using System.Collections;
 using FactoryPattern;
+using ObjectPool;
 using TMPro;
 using UnityEngine;
 
@@ -22,8 +23,10 @@ namespace SingletonPattern
         [Header("End Game")]
         [SerializeField] private GameObject gameplayUI;
         [SerializeField] private GameObject winScreen;
+        [SerializeField] private GameObject loseScreen;
         [SerializeField] private TMP_Text timeText;
         public bool hasKey;
+        public bool win;
 
         private void Start()
         {
@@ -90,25 +93,51 @@ namespace SingletonPattern
                 20 => 11,
                 _ => _camera.orthographicSize
             };
+
+            switch (size)
+            {
+                case 10:
+                    TrapSpawner.Instance.maxPoolSize = 5;
+                    TrapSpawner.Instance.stackDefaultCapacity = 5;
+                    break;
+                case 15:
+                    TrapSpawner.Instance.maxPoolSize = 10;
+                    TrapSpawner.Instance.stackDefaultCapacity = 10;
+                    break;
+                case 20:
+                    TrapSpawner.Instance.maxPoolSize = 15;
+                    TrapSpawner.Instance.stackDefaultCapacity = 15;
+                    break;
+            }
         }
 
         public void EndGame()
         {
-            if (hasKey && runGame)
+            // Pause timer
+            runGame = false;
+            
+            gameplayUI.gameObject.SetActive(false);
+            
+            switch (win)
             {
-                // Pause timer
-                runGame = false;
+                case true:
+                    AudioManager.Instance.PlaySfx("Win");
                 
-                AudioManager.Instance.PlaySfx("Win");
+                    float minutes = Mathf.FloorToInt(_time / 60);
+                    float seconds = Mathf.FloorToInt(_time % 60);
+
+                    timeText.text = "Completed in: " + $"{minutes:00}:{seconds:00}";
+
+                    // Display Win Screen
+                    winScreen.gameObject.SetActive(true);
+                    break;
                 
-                float minutes = Mathf.FloorToInt(_time / 60);
-                float seconds = Mathf.FloorToInt(_time % 60);
+                case false:
+                    //AudioManager.Instance.PlaySfx("Win");
 
-                timeText.text = "Completed in: " + $"{minutes:00}:{seconds:00}";
-
-                // Display Win Screen
-                gameplayUI.gameObject.SetActive(false);
-                winScreen.gameObject.SetActive(true);
+                    // Display Lose Screen
+                    loseScreen.gameObject.SetActive(true);
+                    break;
             }
         }
         
@@ -119,8 +148,10 @@ namespace SingletonPattern
             _time = 0;
             _isSizeSelected = false;
             hasKey = false;
+            win = false;
             gameplayUI.gameObject.SetActive(true);
             winScreen.gameObject.SetActive(false);
+            loseScreen.gameObject.SetActive(false);
         }
     }
 }

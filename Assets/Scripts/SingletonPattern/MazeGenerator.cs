@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Maze;
+using ObjectPool;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -16,31 +17,38 @@ namespace SingletonPattern
 
         private List<MazeNode> _nodes = new List<MazeNode>();
         private List<MazeNode> _currentPath = new List<MazeNode>();
-        private List<MazeNode> _completedNodes = new List<MazeNode>();
+        public List<MazeNode> completedNodes = new List<MazeNode>();
 
+        public Vector3[] trapPos;
+        
         private bool _generationDone;
+
+        private TrapSpawner _pool;
 
         private void Start()
         {
             character.GetComponent<Renderer>().enabled = false;
             key.GetComponent<Renderer>().enabled = false;
+            _pool = gameObject.GetComponent<TrapSpawner>();
         }
 
         private void Update()
         {
-            if (_generationDone)
+            if (!_generationDone) return;
+            
+            // Check if player has reached end and has the key
+            if (Math.Abs(character.transform.position.x - completedNodes[^1].transform.position.x) < 0.2f 
+                && Math.Abs(character.transform.position.z - completedNodes[^1].transform.position.z) < 0.2f && GameManager.Instance.hasKey)
             {
-                // Check if player has reached end
-                if (Math.Abs(character.transform.position.x - _completedNodes[^1].transform.position.x) < 0.2f 
-                    && Math.Abs(character.transform.position.z - _completedNodes[^1].transform.position.z) < 0.2f)
-                {
-                    GameManager.Instance.EndGame();
-                }
+                GameManager.Instance.win = true;
+                GameManager.Instance.EndGame();
             }
         }
 
         public void GenerateMaze()
         {
+            trapPos = new Vector3[TrapSpawner.Instance.maxPoolSize];
+            
             // Create nodes
             for (int x = 0; x < mazeSize.x; x++)
             {
@@ -55,7 +63,7 @@ namespace SingletonPattern
             // Choose starting node
             _currentPath.Add(_nodes[Random.Range(0, _nodes.Count)]);
 
-            while (_completedNodes.Count < _nodes.Count)
+            while (completedNodes.Count < _nodes.Count)
             {
                 // Check nodes next to the current node
                 List<int> possibleNextNodes = new List<int>();
@@ -68,7 +76,7 @@ namespace SingletonPattern
                 if (currentNodeX < mazeSize.x - 1)
                 {
                     // Check node to the right of the current node
-                    if (!_completedNodes.Contains(_nodes[currentNodeIndex + mazeSize.y]) &&
+                    if (!completedNodes.Contains(_nodes[currentNodeIndex + mazeSize.y]) &&
                         !_currentPath.Contains(_nodes[currentNodeIndex + mazeSize.y]))
                     {
                         possibleDirections.Add(1);
@@ -79,7 +87,7 @@ namespace SingletonPattern
                 if (currentNodeX > 0)
                 {
                     // Check node to the left of the current node
-                    if (!_completedNodes.Contains(_nodes[currentNodeIndex - mazeSize.y]) &&
+                    if (!completedNodes.Contains(_nodes[currentNodeIndex - mazeSize.y]) &&
                         !_currentPath.Contains(_nodes[currentNodeIndex - mazeSize.y]))
                     {
                         possibleDirections.Add(2);
@@ -90,7 +98,7 @@ namespace SingletonPattern
                 if (currentNodeY < mazeSize.y - 1)
                 {
                     // Check node above the current node
-                    if (!_completedNodes.Contains(_nodes[currentNodeIndex + 1]) &&
+                    if (!completedNodes.Contains(_nodes[currentNodeIndex + 1]) &&
                         !_currentPath.Contains(_nodes[currentNodeIndex + 1]))
                     {
                         possibleDirections.Add(3);
@@ -101,7 +109,7 @@ namespace SingletonPattern
                 if (currentNodeY > 0)
                 {
                     // Check node below the current node
-                    if (!_completedNodes.Contains(_nodes[currentNodeIndex - 1]) &&
+                    if (!completedNodes.Contains(_nodes[currentNodeIndex - 1]) &&
                         !_currentPath.Contains(_nodes[currentNodeIndex - 1]))
                     {
                         possibleDirections.Add(4);
@@ -139,35 +147,58 @@ namespace SingletonPattern
                 }
                 else
                 {
-                    _completedNodes.Add(_currentPath[^1]);
+                    completedNodes.Add(_currentPath[^1]);
 
                     _currentPath.RemoveAt(_currentPath.Count - 1);
                 }
             }
 
-            // Set character & key position
-            character.transform.position = _completedNodes[0].transform.position;
-            key.transform.position = _completedNodes[Random.Range(1, _completedNodes.Count - 2)].transform.position;
+            // Set character position
+            character.transform.position = completedNodes[0].transform.position;
             character.GetComponent<Renderer>().enabled = true;
+            
+            // Set key position
+            key.transform.position = completedNodes[Random.Range(1, completedNodes.Count - 2)].transform.position;
             key.GetComponent<Renderer>().enabled = true;
             key.SetActive(true);
             
+            //Spawn Traps
+            SpawnTraps();
+            
             // Color starting and end nodes
-            _completedNodes[0].SetState(NodeState.Start);
-            _completedNodes[^1].SetState(NodeState.End);
+            completedNodes[0].SetState(NodeState.Start);
+            completedNodes[^1].SetState(NodeState.End);
 
             _generationDone = true;
+        }
+
+        private void SpawnTraps()
+        {
+            for (var i = 0; i < _pool.maxPoolSize; i++)
+            {
+                Vector3 trapSpawn = completedNodes[Random.Range(2, completedNodes.Count - 2)].transform.position;
+                _pool.SpawnTrap(new Vector3(trapSpawn.x, -0.45f, trapSpawn.z));
+                trapPos[i] = trapSpawn;
+            }
+        }
+
+        public void ResetTraps()
+        {
+            for (var i = 0; i < _pool.maxPoolSize; i++)
+            {
+                _pool.SpawnTrap(trapPos[i]);
+            }
         }
 
         public void ColorNode()
         {
             // Check if player position matches node position
-            for (int i = 0; i < _completedNodes.Count; i++)
+            for (int i = 0; i < completedNodes.Count; i++)
             {
-                if (Math.Abs(character.transform.position.x - _completedNodes[i].transform.position.x) < 0.2f 
-                    && Math.Abs(character.transform.position.z - _completedNodes[i].transform.position.z) < 0.2f)
+                if (Math.Abs(character.transform.position.x - completedNodes[i].transform.position.x) < 0.2f 
+                    && Math.Abs(character.transform.position.z - completedNodes[i].transform.position.z) < 0.2f)
                 {
-                    _completedNodes[i].SetState(NodeState.Current);
+                    completedNodes[i].SetState(NodeState.Current);
                 }
             }
         }
@@ -180,11 +211,22 @@ namespace SingletonPattern
 
             _nodes.Clear();
             _currentPath.Clear();
-            _completedNodes.Clear();
+            completedNodes.Clear();
             
             foreach (Transform child in this.transform)
             {
                 Destroy(child.gameObject);
+            }
+            
+            // Reset Traps
+            Array.Clear(trapPos, 0, trapPos.Length);
+            
+            var traps = FindObjectsOfType<Trap>();
+            
+            // If traps are active
+            foreach (Trap trap in traps)
+            {
+                trap.ReturnToPool();
             }
         }
     }

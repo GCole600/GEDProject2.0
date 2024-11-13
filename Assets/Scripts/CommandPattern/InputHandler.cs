@@ -9,7 +9,7 @@ namespace CommandPattern
         private CharacterController _characterController;
         private Command _buttonW, _buttonA, _buttonS, _buttonD;
 
-        void Start()
+        private void Start()
         {
             _invoker = gameObject.GetComponent<Invoker>();
             _characterController = FindObjectOfType<CharacterController>();
@@ -18,8 +18,8 @@ namespace CommandPattern
             _buttonS = new MoveDown(_characterController);
             _buttonD = new MoveRight(_characterController);
         }
-        
-        void Update()
+
+        private void Update()
         {
             if (Input.GetKeyUp(KeyCode.W))
                 _invoker.ExecuteCommand(_buttonW);
