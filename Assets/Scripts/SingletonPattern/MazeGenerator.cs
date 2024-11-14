@@ -24,12 +24,14 @@ namespace SingletonPattern
         private bool _generationDone;
 
         private TrapSpawner _pool;
+        private MazeNodePool _nodePool;
 
         private void Start()
         {
             character.GetComponent<Renderer>().enabled = false;
             key.GetComponent<Renderer>().enabled = false;
             _pool = gameObject.GetComponent<TrapSpawner>();
+            _nodePool = gameObject.GetComponent<MazeNodePool>();
         }
 
         private void Update()
@@ -55,7 +57,7 @@ namespace SingletonPattern
                 for (int y = 0; y < mazeSize.y; y++)
                 {
                     Vector3 nodePos = new Vector3(x - (mazeSize.x / 2f), 0, y - (mazeSize.y / 2f));
-                    MazeNode newNode = Instantiate(nodePrefab, nodePos, Quaternion.identity, transform);
+                    MazeNode newNode = _nodePool.Spawn(nodePos);
                     _nodes.Add(newNode);
                 }
             }
@@ -209,6 +211,11 @@ namespace SingletonPattern
             character.GetComponent<Renderer>().enabled = false;
             key.GetComponent<Renderer>().enabled = false;
 
+            foreach (MazeNode node in completedNodes)
+            {
+                node.ReturnToPool();
+            }
+            
             _nodes.Clear();
             _currentPath.Clear();
             completedNodes.Clear();

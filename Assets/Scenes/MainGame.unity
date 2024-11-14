@@ -3354,7 +3354,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
+  m_VertexColorAlwaysGammaSpace: 1
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -3824,6 +3824,7 @@ GameObject:
   - component: {fileID: 1696262141}
   - component: {fileID: 1696262142}
   - component: {fileID: 1696262143}
+  - component: {fileID: 1696262144}
   m_Layer: 0
   m_Name: MazeGenerator
   m_TagString: Untagged
@@ -3879,6 +3880,21 @@ MonoBehaviour:
   trapPrefab: {fileID: 1528938534039335260, guid: 7c6eac92d43b9f04b967ff55a324bd66, type: 3}
   maxPoolSize: 5
   stackDefaultCapacity: 5
+--- !u!114 &1696262144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696262140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2de525fd3d6df64bbc4062bb4b057e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nodePrefab: {fileID: 5409021639488820963, guid: 40f32d9361acc5e4dbc026815340a848, type: 3}
+  maxPoolSize: 400
+  stackDefaultCapacity: 400
 --- !u!1 &1754063146
 GameObject:
   m_ObjectHideFlags: 0
