@@ -10,17 +10,15 @@ namespace ObserverPattern
     {
         [SerializeField] public TMP_Text listText;
 
+        private List<Command> _plannedCommands = new List<Command>();
+
         public override void Notify(Subject subject)
         {
-            List<Command> plannedCommands = subject.GetComponent<Invoker>().GetPlannedCommands();
+            _plannedCommands = Invoker.Instance.GetPlannedCommands();
             
-            // Clear list text
-            listText.text = "";
-            
-            // Add commands to UI list text
-            for (int i = 0; i < plannedCommands.Count; i++)
+            if (!Invoker.Instance.remove)
             {
-                switch (plannedCommands[i])
+                switch (Invoker.Instance.NewCommand)
                 {
                     case MoveUp:
                         listText.text += "\nUp";
@@ -34,6 +32,30 @@ namespace ObserverPattern
                     case MoveRight:
                         listText.text += "\nRight";
                         break;
+                }
+            }
+            else
+            {
+                listText.text = ""; // Clear list text
+                
+                // Add commands to UI list text
+                foreach (var command in _plannedCommands)
+                {
+                    switch (command)
+                    {
+                        case MoveUp:
+                            listText.text += "\nUp";
+                            break;
+                        case MoveLeft:
+                            listText.text += "\nLeft";
+                            break;
+                        case MoveDown:
+                            listText.text += "\nDown";
+                            break;
+                        case MoveRight:
+                            listText.text += "\nRight";
+                            break;
+                    }
                 }
             }
         }

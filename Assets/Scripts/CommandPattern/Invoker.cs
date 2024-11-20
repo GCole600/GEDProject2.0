@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
@@ -12,20 +13,30 @@ namespace CommandPattern
         private List<Command> _plannedCommands = new List<Command>();
 
         private Trap[] _components;
-        
-        private void OnEnable()
+
+        public bool remove;
+        public Command NewCommand;
+
+        public static Invoker Instance;
+
+        private void Awake()
         {
-            AddObserver(FindObjectOfType<UIManager>());
+            if (Instance == null)
+                Instance = this;
+            else if (Instance != this)
+                Destroy(this);
+            DontDestroyOnLoad(this);
         }
-        
-        private void OnDisable()
-        {
-            RemoveObserver(FindObjectOfType<UIManager>());
-        }
+
+        private void OnEnable() { AddObserver(FindObjectOfType<UIManager>()); }
+        private void OnDisable() { RemoveObserver(FindObjectOfType<UIManager>()); }
 
         public void ExecuteCommand(Command command)
         {
             _plannedCommands.Add(command);
+            
+            NewCommand = command;
+            remove = false;
             NotifyObservers();
             
             ToggleTraps();
@@ -39,6 +50,7 @@ namespace CommandPattern
         public void Undo()
         {
             _plannedCommands.RemoveAt(_plannedCommands.Count - 1);
+            remove = true;
             NotifyObservers();
         }
 
@@ -46,15 +58,14 @@ namespace CommandPattern
         {
             // Reset all traps to initial state
             _components = FindObjectsOfType<Trap>();
-            foreach (Trap trap in _components)
+            foreach (var trap in _components)
             {
                 trap.ReturnToPool();
             }
             
             MazeGenerator.Instance.ResetTraps();
             
-            
-            foreach (Command command in _plannedCommands)
+            foreach (var command in _plannedCommands)
             {
                 command.Execute();
                 

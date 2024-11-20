@@ -4,6 +4,7 @@ using FactoryPattern;
 using ObjectPool;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace SingletonPattern
 {
@@ -29,13 +30,15 @@ namespace SingletonPattern
         public bool hasKey;
         public bool win;
 
+        private bool _playing;
+
         private void Start()
         {
             _camera = Camera.main;
             StartCoroutine(LateLoad());
         }
 
-        private IEnumerator LateLoad()
+        private static IEnumerator LateLoad()
         {
             yield return new WaitForEndOfFrame();
             AudioManager.Instance.PlayMusic("BackgroundMusic");
@@ -46,38 +49,45 @@ namespace SingletonPattern
 
         private void Update()
         {
-            if (Input.anyKeyDown)
+            if (!_playing)
             {
-                infoScreen.SetActive(false);
-                gameplayUI.gameObject.SetActive(true);
-            }
-            
-            if (runGame)
-            {
-                _time += Time.deltaTime;
-                UpdateTimer();
+                if (Keyboard.current.anyKey.wasPressedThisFrame)
+                {
+                    infoScreen.SetActive(false);
+                    gameplayUI.gameObject.SetActive(true);
+                    _playing = true;
+                }
             }
         }
 
-        private void UpdateTimer()
+        private IEnumerator UpdateTimer()
         {
-            // Converts time to minutes & seconds
-            float minutes = Mathf.FloorToInt(_time / 60);
-            float seconds = Mathf.FloorToInt(_time % 60);
+            while (runGame)
+            {
+                _time += 1.0f;
+                
+                // Converts time to minutes & seconds
+                float minutes = Mathf.FloorToInt(_time / 60);
+                float seconds = Mathf.FloorToInt(_time % 60);
 
-            timerText.text = "Time: " + $"{minutes:00}:{seconds:00}";
+                timerText.text = "Time: " + $"{minutes:00}:{seconds:00}";
+                
+                yield return new WaitForSeconds(1.0f);
+            }
         }
         
         public void PlayGame()
         {
-            if (_isSizeSelected && !runGame)
+            switch (_isSizeSelected)
             {
-                MazeGenerator.Instance.GenerateMaze();
-                runGame = true;
-            }
-            else if (!_isSizeSelected)
-            {
-                sizeNotSelectedText.gameObject.SetActive(true);
+                case true when !runGame:
+                    MazeGenerator.Instance.GenerateMaze();
+                    runGame = true;
+                    StartCoroutine(UpdateTimer());
+                    break;
+                case false:
+                    sizeNotSelectedText.gameObject.SetActive(true);
+                    break;
             }
         }
 
@@ -128,8 +138,6 @@ namespace SingletonPattern
                     break;
                 
                 case false:
-                    //AudioManager.Instance.PlaySfx("Win");
-
                     // Display Lose Screen
                     loseScreen.gameObject.SetActive(true);
                     break;

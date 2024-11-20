@@ -20,17 +20,12 @@ namespace FactoryPattern
             {
                 case "Music":
                     clip = _audioDatabase.music.Find(c => c.name == clipName);
-                    if (clip != null)
-                        return new BackgroundMusic(clip);
-                    break;
+                    return new BackgroundMusic(clip);
                 case "SFX":
                     clip = _audioDatabase.soundEffects.Find(c => c.name == clipName);
-                    if (clip != null)
-                        return new SoundEffect(clip);
-                    break;
+                    return new SoundEffect(clip);
             }
             
-            Debug.LogWarning("Audio clip not found or invalid type specified.");
             return null;
         }
     }

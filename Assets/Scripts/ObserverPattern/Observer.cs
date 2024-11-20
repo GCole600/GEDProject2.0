@@ -1,3 +1,4 @@
+using SingletonPattern;
 using UnityEngine;
 
 namespace ObserverPattern
