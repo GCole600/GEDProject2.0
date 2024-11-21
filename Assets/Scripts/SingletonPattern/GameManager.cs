@@ -24,6 +24,7 @@ namespace SingletonPattern
         
         [Header("End Game")]
         [SerializeField] private GameObject gameplayUI;
+        [SerializeField] private GameObject listUI;
         [SerializeField] private GameObject winScreen;
         [SerializeField] private GameObject loseScreen;
         [SerializeField] private TMP_Text timeText;
@@ -55,6 +56,7 @@ namespace SingletonPattern
                 {
                     infoScreen.SetActive(false);
                     gameplayUI.gameObject.SetActive(true);
+                    listUI.gameObject.SetActive(true);
                     _playing = true;
                 }
             }
@@ -122,6 +124,7 @@ namespace SingletonPattern
             runGame = false;
             
             gameplayUI.gameObject.SetActive(false);
+            listUI.gameObject.SetActive(false);
             
             switch (win)
             {
@@ -153,6 +156,7 @@ namespace SingletonPattern
             hasKey = false;
             win = false;
             gameplayUI.gameObject.SetActive(true);
+            listUI.gameObject.SetActive(true);
             winScreen.gameObject.SetActive(false);
             loseScreen.gameObject.SetActive(false);
         }
