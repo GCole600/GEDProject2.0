@@ -12,7 +12,6 @@ namespace ObjectPool
         public int stackDefaultCapacity;
         
         private IObjectPool<Trap> _pool;
-
         private IObjectPool<Trap> Pool
         {
             get

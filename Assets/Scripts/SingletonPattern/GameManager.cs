@@ -3,8 +3,11 @@ using DLL_Plugin;
 using FactoryPattern;
 using ObjectPool;
 using TMPro;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using CommandPattern;
+using Invoker = CommandPattern.Invoker;
 
 namespace SingletonPattern
 {
@@ -150,6 +153,7 @@ namespace SingletonPattern
         public void ReloadVars()
         {
             MazeGenerator.Instance.ReloadVars();
+            Invoker.Instance.ClearList();
             runGame = false;
             _time = 0;
             _isSizeSelected = false;

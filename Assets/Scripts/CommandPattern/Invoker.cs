@@ -73,14 +73,23 @@ namespace CommandPattern
                 
                 yield return new WaitForSeconds(0.2f);
             }
-
-            _plannedCommands.Clear();
-            NotifyObservers();
+            
+            ClearList();
         }
 
-        public List<Command> GetPlannedCommands()
+        public void ClearList()
         {
-            return _plannedCommands;
+            remove = true;
+
+            for (var i = 0; i < _plannedCommands.Count; i++)
+            {
+                NotifyObservers();
+            }
+            
+            NewCommand = null;
+            _plannedCommands.Clear();
+            
+            remove = false;
         }
 
         private void ToggleTraps()

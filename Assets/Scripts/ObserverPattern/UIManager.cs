@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using CommandPattern;
+using ObjectPool.Moves;
 using UnityEngine;
 
 namespace ObserverPattern
@@ -7,46 +7,61 @@ namespace ObserverPattern
     public class UIManager : Observer
     {
         [SerializeField] private GameObject contentHolder;
-        
-        [SerializeField] private GameObject rightPrefab;
-        [SerializeField] private GameObject leftPrefab;
-        [SerializeField] private GameObject upPrefab;
-        [SerializeField] private GameObject downPrefab;
 
-        private Vector3 _spawnPos = new Vector3(-25, 263, 0);
+        private Vector3 _spawnPos = new Vector3(-25, -10, 0);
 
-        private List<Command> _plannedCommands = new List<Command>();
+        private MoveRightPool _rightPool;
+        private MoveLeftPool _leftPool;
+        private MoveUpPool _upPool;
+        private MoveDownPool _downPool;
+
+        private void Start()
+        {
+            _rightPool = gameObject.GetComponent<MoveRightPool>();
+            _leftPool = gameObject.GetComponent<MoveLeftPool>();
+            _upPool = gameObject.GetComponent<MoveUpPool>();
+            _downPool = gameObject.GetComponent<MoveDownPool>();
+        }
 
         public override void Notify(Subject subject)
         {
             if (!Invoker.Instance.remove)
             {
-                GameObject newText;
                 switch (Invoker.Instance.NewCommand)
                 {
                     case MoveUp:
-                        newText = Instantiate(upPrefab, contentHolder.transform);
+                        _upPool.Spawn(_spawnPos);
                         break;
                     case MoveLeft:
-                        newText = Instantiate(leftPrefab, contentHolder.transform);
+                        _leftPool.Spawn(_spawnPos);
                         break;
                     case MoveDown:
-                        newText = Instantiate(downPrefab, contentHolder.transform);
+                        _downPool.Spawn(_spawnPos);
                         break;
                     case MoveRight:
-                        newText = Instantiate(rightPrefab, contentHolder.transform);
-                        break;
-                    default:
-                        newText = Instantiate(upPrefab, contentHolder.transform);
+                        _rightPool.Spawn(_spawnPos);
                         break;
                 }
-
-                newText.transform.localPosition = _spawnPos;
+                
                 _spawnPos += new Vector3(0, -20, 0);
             }
             else
             {
-                Destroy(contentHolder.transform.GetChild(contentHolder.transform.childCount - 1));
+                var obj = contentHolder.transform.GetChild(contentHolder.transform.childCount - 1);
+
+                if (obj.GetComponent<MoveRightObject>())
+                    obj.GetComponent<MoveRightObject>().ReturnToPool();
+                
+                else if (obj.GetComponent<MoveLeftObject>())
+                    obj.GetComponent<MoveLeftObject>().ReturnToPool();
+                
+                else if (obj.GetComponent<MoveUpObject>())
+                    obj.GetComponent<MoveUpObject>().ReturnToPool();
+                
+                else if (obj.GetComponent<MoveDownObject>())
+                    obj.GetComponent<MoveDownObject>().ReturnToPool();
+                
+                _spawnPos -= new Vector3(0, -20, 0);
             }
         }
     }

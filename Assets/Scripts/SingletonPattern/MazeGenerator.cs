@@ -9,7 +9,6 @@ namespace SingletonPattern
 {
     public class MazeGenerator : Singleton<MazeGenerator>
     {
-        [SerializeField] private MazeNode nodePrefab;
         public Vector2Int mazeSize;
 
         [SerializeField] private GameObject character;
